@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter,
   Routes,
@@ -85,7 +84,7 @@ function StudentLayout() {
   return (
     <Routes>
       <Route
-        path="/"
+        path="/dashboard"
         element={<StudentDashboard />}
       />
     </Routes>
@@ -155,4 +154,3 @@ function App() {
 }
 
 export default App;
-

@@ -1,37 +1,37 @@
 
-
 import api from "../api";
 import { useEffect, useState } from "react";
 
-function AddStudentForm({ onStudentAdded,
-editingStudent,
-onStudentUpdated,
+function AddStudentForm({
+  onStudentAdded,
+  editingStudent,
+  onStudentUpdated,
+}) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    rollNumber: "",
+    course: "",
+    batch: "",
+    joinDate: "",
+    password: "",
+  });
 
- }) {
-
-
-      const [formData, setFormData] = useState({
-  name: "",
-  email: "",
-  rollNumber: "",
-  course: "",
-  batch: "",
-  joinDate: "",
-});
-
- useEffect(() => {
-  if (editingStudent) {
-    setFormData({
-      name: editingStudent.name,
-      email: editingStudent.email,
-      rollNumber: editingStudent.rollNumber,
-      course: editingStudent.course,
-      batch: editingStudent.batch,
-      joinDate:
-        editingStudent.joinDate.split("T")[0],
-    });
-  }
-}, [editingStudent]);
+  useEffect(() => {
+    if (editingStudent) {
+      setFormData({
+        name: editingStudent.name,
+        email: editingStudent.email,
+        rollNumber: editingStudent.rollNumber,
+        course: editingStudent.course,
+        batch: editingStudent.batch,
+        joinDate: editingStudent.joinDate
+          ? editingStudent.joinDate.split("T")[0]
+          : "",
+        password: "",
+      });
+    }
+  }, [editingStudent]);
 
   function handleChange(e) {
     setFormData({
@@ -40,42 +40,41 @@ onStudentUpdated,
     });
   }
 
-    
-   
   async function handleSubmit(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    let response;
+    try {
+      let response;
 
- if (editingStudent) {
-  response = await api.put(
-    `/students/${editingStudent.id}`,
-    formData
-  );
+      if (editingStudent) {
+        response = await api.put(
+          `/students/${editingStudent.id}`,
+          formData
+        );
 
-  onStudentUpdated(response.data);
-} else {
-      response = await api.post(
-        "/students",
-        formData
-      );
+        onStudentUpdated(response.data);
+      } else {
+        response = await api.post(
+          "/students",
+          formData
+        );
 
-      onStudentAdded(response.data);
+        onStudentAdded(response.data);
+      }
+
+      setFormData({
+        name: "",
+        email: "",
+        rollNumber: "",
+        course: "",
+        batch: "",
+        joinDate: "",
+        password: "",
+      });
+    } catch (error) {
+      console.log(error);
     }
-
-    setFormData({
-      name: "",
-      email: "",
-      rollNumber: "",
-      course: "",
-      batch: "",
-      joinDate: "",
-    });
-  } catch (error) {
-    console.log(error);
   }
-}
 
   return (
     <form
@@ -88,9 +87,11 @@ onStudentUpdated,
         boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
       }}
     >
-     <h2>
-  {editingStudent ? "Edit Student" : "Add Student"}
-</h2>
+      <h2>
+        {editingStudent
+          ? "Edit Student"
+          : "Add Student"}
+      </h2>
 
       <input
         name="name"
@@ -149,16 +150,33 @@ onStudentUpdated,
         onChange={handleChange}
       />
 
+      {!editingStudent && (
+        <>
+          <br />
+          <br />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+          />
+        </>
+      )}
+
       <br />
       <br />
 
-<button type="submit">
-  {editingStudent
-    ? "Update Student"
-    : "Add Student"}
-</button>
+      <button type="submit">
+        {editingStudent
+          ? "Update Student"
+          : "Add Student"}
+      </button>
     </form>
   );
 }
 
-export default AddStudentForm;
+
+
+
