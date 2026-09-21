@@ -70,9 +70,9 @@ async function markAttendance(studentId, status) {
       status,
     });
 
-  const studentsResponse = await api.get(
-  "/students"
-);
+    const studentsResponse = await api.get(
+      "/students/dashboard"
+    );
 
     setStudents(studentsResponse.data);
 

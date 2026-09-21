@@ -1,10 +1,13 @@
-
 function StudentCard({
   student,
   onDelete,
   onEdit,
   onMarkAttendance,
 }) {
+  const attendanceMarked =
+    student.todayStatus === "Present" ||
+    student.todayStatus === "Absent";
+
   return (
     <div
       style={{
@@ -98,13 +101,13 @@ function StudentCard({
 
       {/* Attendance Buttons */}
       <div style={{ marginTop: "15px" }}>
-        
-        {/* Present Button */}
+
+        {/* Present */}
         <button
           onClick={() =>
             onMarkAttendance(student.id, "Present")
           }
-          disabled={student.todayStatus !== null}
+          disabled={attendanceMarked}
           style={{
             background:
               student.todayStatus === "Present"
@@ -114,10 +117,9 @@ function StudentCard({
             border: "none",
             padding: "10px 15px",
             borderRadius: "8px",
-            cursor:
-              student.todayStatus !== null
-                ? "not-allowed"
-                : "pointer",
+            cursor: attendanceMarked
+              ? "not-allowed"
+              : "pointer",
             marginRight: "10px",
           }}
         >
@@ -126,12 +128,12 @@ function StudentCard({
             : "Present"}
         </button>
 
-        {/* Absent Button */}
+        {/* Absent */}
         <button
           onClick={() =>
             onMarkAttendance(student.id, "Absent")
           }
-          disabled={student.todayStatus !== null}
+          disabled={attendanceMarked}
           style={{
             background:
               student.todayStatus === "Absent"
@@ -141,20 +143,19 @@ function StudentCard({
             border: "none",
             padding: "10px 15px",
             borderRadius: "8px",
-            cursor:
-              student.todayStatus !== null
-                ? "not-allowed"
-                : "pointer",
+            cursor: attendanceMarked
+              ? "not-allowed"
+              : "pointer",
           }}
         >
           {student.todayStatus === "Absent"
             ? "Already Absent"
             : "Absent"}
         </button>
+
       </div>
     </div>
   );
 }
 
 export default StudentCard;
-

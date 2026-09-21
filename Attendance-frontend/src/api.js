@@ -1,3 +1,4 @@
+
 import axios from "axios";
 
 const api = axios.create({
@@ -5,7 +6,10 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const teacherToken = localStorage.getItem("token");
+  const studentToken = localStorage.getItem("studentToken");
+
+  const token = studentToken || teacherToken;
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -15,3 +19,4 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+

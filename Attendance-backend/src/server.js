@@ -54,7 +54,6 @@ app.get("/", (req, res) => {
 // STUDENTS
 // =========================
 
-// ADD STUDENT
 app.post("/students", authenticateToken, async (req, res) => {
   const {
     name,
@@ -63,9 +62,12 @@ app.post("/students", authenticateToken, async (req, res) => {
     course,
     batch,
     joinDate,
+    password,
   } = req.body;
 
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const student = await prisma.student.create({
       data: {
         name,
@@ -76,6 +78,7 @@ app.post("/students", authenticateToken, async (req, res) => {
         joinDate: joinDate
           ? new Date(joinDate)
           : null,
+        password: hashedPassword,
       },
     });
 
@@ -627,6 +630,75 @@ app.post("/student/login", async (req, res) => {
 
     res.status(500).json({
       message: "Server error",
+    });
+  }
+});
+
+
+
+app.get("/student/dashboard", authenticateToken, async (req, res) => {
+  try {
+    const student = await prisma.student.findUnique({
+      where: {
+        id: req.user.id,
+      },
+      include: {
+        attendances: true,
+      },
+    });
+
+    if (!student) {
+      return res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    const totalClasses = student.attendances.length;
+
+    const presentClasses = student.attendances.filter(
+      (a) => a.status === "Present"
+    ).length;
+
+    const attendancePercentage =
+      totalClasses === 0
+        ? 0
+        : ((presentClasses / totalClasses) * 100).toFixed(2);
+
+    const today = new Date();
+
+    const todayAttendance = student.attendances.find((attendance) => {
+      const date = new Date(attendance.date);
+
+      return (
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear()
+      );
+    });
+
+    res.json({
+      student: {
+        id: student.id,
+        name: student.name,
+        email: student.email,
+        rollNumber: student.rollNumber,
+        course: student.course,
+        batch: student.batch,
+      },
+
+      attendancePercentage,
+
+      todayStatus: todayAttendance
+        ? todayAttendance.status
+        : "Not Marked",
+
+      attendances: student.attendances,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: "Failed to fetch student dashboard",
     });
   }
 });

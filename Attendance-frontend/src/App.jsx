@@ -16,7 +16,6 @@ import Results from "./pages/Results";
 import StudentLogin from "./pages/StudentLogin";
 import StudentDashboard from "./pages/StudentDashboard";
 
-
 // =========================
 // TEACHER PROTECTED ROUTE
 // =========================
@@ -25,12 +24,11 @@ function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
 
   if (!token) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
 
   return children;
 }
-
 
 // =========================
 // STUDENT PROTECTED ROUTE
@@ -40,12 +38,11 @@ function StudentProtectedRoute({ children }) {
   const token = localStorage.getItem("studentToken");
 
   if (!token) {
-    return <Navigate to="/student/login" />;
+    return <Navigate to="/student/login" replace />;
   }
 
   return children;
 }
-
 
 // =========================
 // TEACHER DASHBOARD
@@ -53,28 +50,19 @@ function StudentProtectedRoute({ children }) {
 
 function DashboardLayout() {
   return (
-    <div
-      style={{
-        display: "flex",
-      }}
-    >
+    <div style={{ display: "flex" }}>
       <Sidebar />
 
-      <div
-        style={{
-          flex: 1,
-        }}
-      >
+      <div style={{ flex: 1 }}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/timetable" element={<Timetable />} />
-          <Route path="/results" element={<Results />} />
+          <Route index element={<Home />} />
+          <Route path="timetable" element={<Timetable />} />
+          <Route path="results" element={<Results />} />
         </Routes>
       </div>
     </div>
   );
 }
-
 
 // =========================
 // STUDENT DASHBOARD
@@ -83,14 +71,10 @@ function DashboardLayout() {
 function StudentLayout() {
   return (
     <Routes>
-      <Route
-        path="/dashboard"
-        element={<StudentDashboard />}
-      />
+      <Route path="dashboard" element={<StudentDashboard />} />
     </Routes>
   );
 }
-
 
 // =========================
 // APP
@@ -100,44 +84,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
 
-        {/* =========================
-            TEACHER LOGIN
-        ========================= */}
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-
-        {/* =========================
-            STUDENT LOGIN
-        ========================= */}
-
-        <Route
-          path="/student/login"
-          element={<StudentLogin />}
-        />
-
-
-        {/* =========================
-            TEACHER DASHBOARD
-        ========================= */}
-
-        <Route
-          path="/*"
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        />
-
-
-        {/* =========================
-            STUDENT DASHBOARD
-        ========================= */}
+        <Route path="/student/login" element={<StudentLogin />} />
 
         <Route
           path="/student/*"
@@ -148,6 +97,14 @@ function App() {
           }
         />
 
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

@@ -177,6 +177,8 @@ function AddStudentForm({
   );
 }
 
+export default AddStudentForm;  
+
 
 
 
