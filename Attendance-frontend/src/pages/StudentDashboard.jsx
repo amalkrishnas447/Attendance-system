@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
@@ -8,12 +7,16 @@ function StudentDashboard() {
   const [attendancePercentage, setAttendancePercentage] = useState(0);
   const [todayStatus, setTodayStatus] = useState("Not Marked");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchDashboard() {
       try {
+        setLoading(true);
+        setError("");
+
         const token = localStorage.getItem("studentToken");
 
         const response = await api.get("/student/dashboard", {
@@ -23,12 +26,15 @@ function StudentDashboard() {
         });
 
         setStudent(response.data.student);
-        setAttendancePercentage(
-          response.data.attendancePercentage
-        );
+        setAttendancePercentage(response.data.attendancePercentage);
         setTodayStatus(response.data.todayStatus);
       } catch (error) {
         console.log(error);
+
+        setError(
+          error.response?.data?.message ||
+            "Failed to load student dashboard."
+        );
       } finally {
         setLoading(false);
       }
@@ -45,14 +51,71 @@ function StudentDashboard() {
   }
 
   if (loading) {
-    return <h2 style={{ padding: "30px" }}>Loading...</h2>;
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f1f5f9",
+        }}
+      >
+        <h2>Loading dashboard...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f1f5f9",
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            padding: "30px",
+            borderRadius: "12px",
+            textAlign: "center",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          }}
+        >
+          <h2>Unable to load dashboard</h2>
+
+          <p style={{ color: "#b91c1c" }}>
+            {error}
+          </p>
+
+          <button
+            onClick={handleLogout}
+            style={{
+              marginTop: "15px",
+              padding: "10px 20px",
+              background: "#dc2626",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            Back to Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!student) {
     return (
-      <h2 style={{ padding: "30px" }}>
-        Unable to load student dashboard.
-      </h2>
+      <div style={{ padding: "30px" }}>
+        <h2>Student information not found.</h2>
+      </div>
     );
   }
 
@@ -61,7 +124,7 @@ function StudentDashboard() {
       style={{
         minHeight: "100vh",
         display: "flex",
-        background: "#f4f6f8",
+        background: "#f1f5f9",
       }}
     >
       {/* LEFT PROFILE */}
@@ -89,13 +152,13 @@ function StudentDashboard() {
           <p>
             <strong>Course:</strong>
             <br />
-            {student.course}
+            {student.course || "Not provided"}
           </p>
 
           <p>
             <strong>Batch:</strong>
             <br />
-            {student.batch}
+            {student.batch || "Not provided"}
           </p>
         </div>
 
@@ -110,6 +173,7 @@ function StudentDashboard() {
             border: "none",
             borderRadius: "6px",
             cursor: "pointer",
+            fontWeight: "bold",
           }}
         >
           Logout
@@ -123,32 +187,50 @@ function StudentDashboard() {
           padding: "40px",
         }}
       >
-        <h1 style={{color:"black"}}>Student Dashboard</h1>
+        <h1 style={{ color: "#0f172a" }}>
+          Student Dashboard
+        </h1>
 
-        <h2 style={{ marginTop: "40px",color:"black" }}>
+        <h2
+          style={{
+            marginTop: "40px",
+            color: "#334155",
+          }}
+        >
           Welcome, {student.name}!
         </h2>
 
-        {/* ATTENDANCE */}
+        {/* ATTENDANCE CARD */}
         <div
           style={{
             marginTop: "30px",
-            marginLeft:"80px",
-            background: "black",
+            background: "white",
             padding: "30px",
             borderRadius: "12px",
             maxWidth: "500px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
           }}
         >
-          <h2>Attendance</h2>
+          <h2 style={{ color: "#0f172a" }}>
+            Attendance
+          </h2>
 
-          <p style={{ fontSize: "20px" }}>
+          <p
+            style={{
+              fontSize: "20px",
+              color: "#334155",
+            }}
+          >
             Attendance Percentage:
             <strong> {attendancePercentage}%</strong>
           </p>
 
-          <p style={{ fontSize: "18px" }}>
+          <p
+            style={{
+              fontSize: "18px",
+              color: "#334155",
+            }}
+          >
             Today's Status:
             <strong> {todayStatus}</strong>
           </p>

@@ -17,19 +17,23 @@ function AddStudentForm({
     password: "",
   });
 
+  const [error, setError] = useState("");
+
   useEffect(() => {
     if (editingStudent) {
       setFormData({
-        name: editingStudent.name,
-        email: editingStudent.email,
-        rollNumber: editingStudent.rollNumber,
-        course: editingStudent.course,
-        batch: editingStudent.batch,
+        name: editingStudent.name || "",
+        email: editingStudent.email || "",
+        rollNumber: editingStudent.rollNumber || "",
+        course: editingStudent.course || "",
+        batch: editingStudent.batch || "",
         joinDate: editingStudent.joinDate
           ? editingStudent.joinDate.split("T")[0]
           : "",
         password: "",
       });
+
+      setError("");
     }
   }, [editingStudent]);
 
@@ -38,10 +42,60 @@ function AddStudentForm({
       ...formData,
       [e.target.name]: e.target.value,
     });
+
+    setError("");
+  }
+
+  function validateForm() {
+    if (!formData.name.trim()) {
+      return "Name is required";
+    }
+
+    if (!formData.email.trim()) {
+      return "Email is required";
+    }
+
+    if (!formData.email.includes("@")) {
+      return "Please enter a valid email";
+    }
+
+    if (!formData.rollNumber.trim()) {
+      return "Roll number is required";
+    }
+
+    if (!formData.course.trim()) {
+      return "Course is required";
+    }
+
+    if (!formData.batch.trim()) {
+      return "Batch is required";
+    }
+
+    if (!formData.joinDate) {
+      return "Join date is required";
+    }
+
+    // Password is required only when adding
+    if (!editingStudent && !formData.password) {
+      return "Password is required";
+    }
+
+    if (!editingStudent && formData.password.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+
+    return "";
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    const validationError = validateForm();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
     try {
       let response;
@@ -71,8 +125,15 @@ function AddStudentForm({
         joinDate: "",
         password: "",
       });
+
+      setError("");
     } catch (error) {
       console.log(error);
+
+      setError(
+        error.response?.data?.message ||
+          "Something went wrong. Please try again."
+      );
     }
   }
 
@@ -93,6 +154,17 @@ function AddStudentForm({
           : "Add Student"}
       </h2>
 
+      {error && (
+        <p
+          style={{
+            color: "red",
+            fontWeight: "bold",
+          }}
+        >
+          {error}
+        </p>
+      )}
+
       <input
         name="name"
         placeholder="Name"
@@ -105,6 +177,7 @@ function AddStudentForm({
 
       <input
         name="email"
+        type="email"
         placeholder="Email"
         value={formData.email}
         onChange={handleChange}
@@ -177,8 +250,5 @@ function AddStudentForm({
   );
 }
 
-export default AddStudentForm;  
-
-
-
+export default AddStudentForm;
 
